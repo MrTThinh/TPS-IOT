@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>ESP32 Smart Health Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.5">
+
+  <!-- CSS ngoài -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Chart.js để vẽ biểu đồ -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<script src="main.js"></script> <!--Thêm-->
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="logo-circle">❤</div>
+        <div>
+          <div class="header-title">e-Health Dashboard</div>
+        </div>
+      </div>
+      <div class="header-right">
+    
+        <!-- Con mắt-->
+        <div class="face">
+          <div class="eye">
+            <div class="pupil"></div>
+          </div>
+          <div class="eye">
+            <div class="pupil"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- BANNER -->
+  <div id="banner">
+    <div class="banner-inner">
+      <div>🕒 Cập nhật lần cuối: <span id="lastUpdateText">--:--</span></div>
+    </div>
+  </div>
+
+  <!-- NAV TABS -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" data-target="tab-overview">1. Tổng quan</button>
+    <button class="tab-btn" data-target="tab-heart">2. Nhịp tim</button>
+    <button class="tab-btn" data-target="tab-spo2">3. SpO₂</button>
+    <button class="tab-btn" data-target="tab-temp">4. Nhiệt độ cơ thể</button>
+    <button class="tab-btn" data-target="tab-data">5. File data ESP</button>
+  </div>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- TAB 1: TỔNG QUAN -->
+    <section id="tab-overview" class="tab-content active">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Tổng quan sức khỏe</div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <!-- Nhịp tim -->
+          <div class="metric-card">
+            <div class="metric-top">
+              <div class="metric-left">
+                <div class="metric-icon">
+                <img src="heart.gif" alt="Nhịp tim" class="logo-gif"></div>
+
+                <div>
+                  <div class="metric-label">Nhịp tim</div>
+                  <div><span id="hrValue" class="metric-value">--</span><span class="metric-unit">BPM</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="metric-footer">Khoảng tham chiếu: 60 – 100 BPM</div>
+          </div>
+
+          <!-- SpO2 -->
+          <div class="metric-card">
+            <div class="metric-top">
+              <div class="metric-left">
+                <div class="metric-icon">
+                  <img src="oxy.gif" alt="SpO₂" class="logo-gif"></div>
+
+                <div>
+                  <div class="metric-label">SpO₂</div>
+                  <div><span id="spo2Value" class="metric-value">--</span><span class="metric-unit">%</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="metric-footer">Bình thường: &gt;= 95%</div>
+          </div>
+
+          <!-- Nhiệt độ -->
+          <div class="metric-card">
+            <div class="metric-top">
+              <div class="metric-left">
+                <div class="metric-icon">
+                  <img src="tom.gif" alt="Nhiệt độ" class="logo-gif">
+                </div>
+                <div>
+                  <div class="metric-label">Nhiệt độ cơ thể</div>
+                  <div><span id="tempValue" class="metric-value">--</span><span class="metric-unit">°C</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="metric-footer">Bình thường ~ 36.5 – 37.5°C</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: NHỊP TIM -->
+    <section id="tab-heart" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Nhịp tim chi tiết</div>
+            <div class="card-subtitle">Biểu đồ biến thiên nhịp tim theo thời gian</div>
+          </div>
+          <span class="pill">Heart Rate</span>
+        </div>
+
+        <div class="metrics-row">
+          <div class="mini-metric">Hiện tại: <span id="hrCurrent">--</span> BPM</div>
+          <div class="mini-metric">Trung bình: <span id="hrAvg">--</span> BPM</div>
+          <div class="mini-metric">Min: <span id="hrMin">--</span> BPM</div>
+          <div class="mini-metric">Max: <span id="hrMax">--</span> BPM</div>
+        </div>
+
+        <iframe
+          width="600"
+          height="300"
+          src="https://thingspeak.mathworks.com/channels/3214452/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=20&title=Heart+Rate&type=line">
+        </iframe>
+        <canvas id="hrChart" height="110"></canvas>
+      </div>
+    </section>
+
+    <!-- TAB 3: SPO2 -->
+    <section id="tab-spo2" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">SpO₂ chi tiết</div>
+            <div class="card-subtitle">Theo dõi nồng độ oxy trong máu</div>
+          </div>
+          <span class="pill">SpO₂</span>
+        </div>
+
+        <div class="metrics-row">
+          <div class="mini-metric">Hiện tại: <span id="spo2Current">--</span>%</div>
+          <div class="mini-metric">Trung bình: <span id="spo2Avg">--</span>%</div>
+          <div class="mini-metric">Min: <span id="spo2Min">--</span>%</div>
+          <div class="mini-metric">Max: <span id="spo2Max">--</span>%</div>
+        </div>
+
+        <iframe
+          width="600"
+          height="300"
+          src="https://thingspeak.mathworks.com/channels/3214452/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=20&title=SpO2&type=line">
+        </iframe>
+
+        <canvas id="spo2Chart" height="110"></canvas>
+      </div>
+    </section>
+
+    <!-- TAB 4: NHIỆT ĐỘ -->
+    <section id="tab-temp" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Nhiệt độ cơ thể chi tiết</div>
+            <div class="card-subtitle">Theo dõi nhiệt độ và phát hiện sốt</div>
+          </div>
+          <span class="pill">Temperature</span>
+        </div>
+
+        <div class="metrics-row">
+          <div class="mini-metric">Hiện tại: <span id="tempCurrent">--</span>°C</div>
+          <div class="mini-metric">Trung bình: <span id="tempAvg">--</span>°C</div>
+          <div class="mini-metric">Min: <span id="tempMin">--</span>°C</div>
+          <div class="mini-metric">Max: <span id="tempMax">--</span>°C</div>
+        </div>
+
+        <iframe
+          width="600"
+          height="300"
+          src="https://thingspeak.mathworks.com/channels/3214452/charts/3?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=20&title=Temperature&type=line">
+        </iframe>
+
+        <canvas id="tempChart" height="110"></canvas>
+      </div>
+    </section>
+
+    <!-- TAB 5: FILE DATA ESP -->
+    <section id="tab-data" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">File dữ liệu do ESP tải lên</div>
+            <div class="card-subtitle">Demo bảng dữ liệu – sau này thay bằng dữ liệu thật từ Firebase / server</div>
+          </div>
+          <button class="btn-outline" onclick="downloadCsvDemo()">⬇ Tải CSV (demo)</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Thời gian</th>
+              <th>Nhịp tim (BPM)</th>
+              <th>SpO₂ (%)</th>
+              <th>Nhiệt độ (°C)</th>
+            </tr>
+          </thead>
+          <tbody id="dataTableBody">
+            <!-- JS sẽ điền dữ liệu demo -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <span>Mọi thông tin liên hệ: 23139039@student.hcmute.edu.vn</span>
+      <span>Đỗ Thanh Sơn</span>
+      <span>Huỳnh Trần Tiến Thịnh</span>
+      <span>Hoàng Gia Phát - Leader</span>
+    </div>
+  </footer>
+
+  <!-- SCRIPT -->
+  <script>
+    // ----- TAB SWITCH -----
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+
+        btn.classList.add('active');
+        const targetId = btn.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('active');
+      });
+    });
+
+  // ----- DỮ LIỆU THẬT (sẽ nhận từ Firebase) -----
+window.labels   = [];
+window.hrData   = [];
+window.spo2Data = [];
+window.tempData = [];
+
+// alias để phía dưới dùng cho gọn
+const labels   = window.labels;
+const hrData   = window.hrData;
+const spo2Data = window.spo2Data;
+const tempData = window.tempData;
+
+
+    function updateOverview() {
+      const lastIndex = labels.length - 1;
+      document.getElementById('hrValue').textContent   = hrData[lastIndex];
+      document.getElementById('spo2Value').textContent = spo2Data[lastIndex];
+      document.getElementById('tempValue').textContent = tempData[lastIndex];
+
+      document.getElementById('lastUpdateText').textContent = labels[lastIndex];
+
+      // Nhịp tim chi tiết
+      document.getElementById('hrCurrent').textContent = hrData[lastIndex];
+      document.getElementById('hrAvg').textContent     = average(hrData).toFixed(0);
+      document.getElementById('hrMin').textContent     = Math.min(...hrData);
+      document.getElementById('hrMax').textContent     = Math.max(...hrData);
+
+      // SpO2 chi tiết
+      document.getElementById('spo2Current').textContent = spo2Data[lastIndex];
+      document.getElementById('spo2Avg').textContent     = average(spo2Data).toFixed(1);
+      document.getElementById('spo2Min').textContent     = Math.min(...spo2Data);
+      document.getElementById('spo2Max').textContent     = Math.max(...spo2Data);
+
+      // Nhiệt độ chi tiết
+      document.getElementById('tempCurrent').textContent = tempData[lastIndex].toFixed(1);
+      document.getElementById('tempAvg').textContent     = average(tempData).toFixed(2);
+      document.getElementById('tempMin').textContent     = Math.min(...tempData).toFixed(1);
+      document.getElementById('tempMax').textContent     = Math.max(...tempData).toFixed(1);
+    }
+
+    function average(arr) {
+      return arr.reduce((a, b) => a + b, 0) / arr.length;
+    }
+
+    // ----- BIỂU ĐỒ -----
+    let hrChart, spo2Chart, tempChart;
+
+    function createCharts() {
+      const hrCtx   = document.getElementById('hrChart').getContext('2d');
+      const spo2Ctx = document.getElementById('spo2Chart').getContext('2d');
+      const tempCtx = document.getElementById('tempChart').getContext('2d');
+
+      hrChart = new Chart(hrCtx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Nhịp tim (BPM)',
+            data: hrData,
+            fill: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: true }
+          },
+          scales: {
+            y: { beginAtZero: false }
+          }
+        }
+      });
+
+      spo2Chart = new Chart(spo2Ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'SpO₂ (%)',
+            data: spo2Data,
+            fill: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: true }
+          },
+          scales: {
+            y: {
+              suggestedMin: 90,
+              suggestedMax: 100
+            }
+          }
+        }
+      });
+
+      tempChart = new Chart(tempCtx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Nhiệt độ (°C)',
+            data: tempData,
+            fill: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: true }
+          },
+          scales: {
+            y: {
+              suggestedMin: 35,
+              suggestedMax: 40
+            }
+          }
+        }
+      });
+    }
+
+    // ----- BẢNG DATA (TAB 5) -----
+    function loadTableData() {
+      const tbody = document.getElementById('dataTableBody');
+      tbody.innerHTML = '';
+      for (let i = 0; i < labels.length; i++) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${labels[i]}</td>
+          <td>${hrData[i]}</td>
+          <td>${spo2Data[i]}</td>
+          <td>${tempData[i].toFixed(1)}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    // Tải CSV demo
+    function downloadCsvDemo() {
+      let csv = 'time,heart_rate,spo2,temp\n';
+      for (let i = 0; i < labels.length; i++) {
+        csv += `${labels[i]},${hrData[i]},${spo2Data[i]},${tempData[i]}\n`;
+      }
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'esp32_health_data_demo.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    window.downloadCsvDemo = downloadCsvDemo;
+
+    // ----- INIT -----
+    window.addEventListener('DOMContentLoaded', () => {
+      updateOverview();
+      createCharts();
+      loadTableData();
+    });
+  </script>
+    <!-- SCRIPT FIREBASE: đọc hrData, spo2Data, tempData ở ROOT DB -->
+  <script type="module">
+    import { initializeApp } from "";
+    import { getDatabase, ref, onValue } from "";
+
+    // ==== DÁN CONFIG CỦA ANH VÀO ĐÂY (copy từ Firebase console) ====
+    const firebaseConfig = {
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    // root chứa: hrData, spo2Data, tempData
+    const latestRef = ref(db, '/');
+
+    function pushNewSampleFromFirebase(data) {
+      if (!data) return;
+
+      const time = new Date().toLocaleTimeString('vi-VN').slice(0,5);
+      const hr   = Number(data.hrData   ?? 0);
+      const spo2 = Number(data.spo2Data ?? 0);
+      const temp = Number(data.tempData ?? 0);
+
+      if (!window.labels)   window.labels   = [];
+      if (!window.hrData)   window.hrData   = [];
+      if (!window.spo2Data) window.spo2Data = [];
+      if (!window.tempData) window.tempData = [];
+
+      window.labels.push(time);
+      window.hrData.push(hr);
+      window.spo2Data.push(spo2);
+      window.tempData.push(temp);
+
+      // giữ tối đa 20 điểm
+      const MAX_POINTS = 20;
+      if (window.labels.length > MAX_POINTS) {
+        window.labels.shift();
+        window.hrData.shift();
+        window.spo2Data.shift();
+        window.tempData.shift();
+      }
+
+      // cập nhật giao diện
+      if (window.updateOverview) window.updateOverview();
+      if (window.loadTableData)  window.loadTableData();
+
+      if (window.hrChart) {
+        window.hrChart.data.labels = window.labels;
+        window.hrChart.data.datasets[0].data = window.hrData;
+        window.hrChart.update();
+      }
+      if (window.spo2Chart) {
+        window.spo2Chart.data.labels = window.labels;
+        window.spo2Chart.data.datasets[0].data = window.spo2Data;
+        window.spo2Chart.update();
+      }
+      if (window.tempChart) {
+        window.tempChart.data.labels = window.labels;
+        window.tempChart.data.datasets[0].data = window.tempData;
+        window.tempChart.update();
+      }
+
+      // dòng banner
+      const lastUpdateText = document.getElementById('lastUpdateText');
+      if (lastUpdateText) lastUpdateText.textContent = time;
+    }
+
+    // mỗi lần hrData/spo2Data/tempData trên server đổi → update dashboard
+    onValue(latestRef, (snapshot) => {
+      const data = snapshot.val();
+      console.log("Firebase data:", data);
+      pushNewSampleFromFirebase(data);
+    });
+  </script>
+</body>
+</html>
+</body>
+</html>

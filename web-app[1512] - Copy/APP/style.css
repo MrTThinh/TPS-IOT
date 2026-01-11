@@ -1,0 +1,367 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  height: 900px;
+  background: #f3f4f6;
+  color: #111827;
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, #ff00c3, rgb(0, 209, 209), #0046b8);
+  color: white;
+  padding: 16px 24px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header-right {   /*con mắt*/
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-circle {
+  width: 45px;
+  height: 45px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.15);
+  color: #d5f503;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+}
+
+.logo-gif { /*thêm - dùng trong tổng quan*/
+  width: 60px;   /* chỉnh nhỏ lại */
+  height: 60px;  /* chỉnh nhỏ lại */
+  object-fit: contain;
+  display: block;
+}
+
+.header-title {
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.header-subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* con mắt*/
+.face {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.eye {
+  width: 40px;
+  height: 40px;
+  border-radius: 60%;
+  background: rgb(255, 255, 255);
+  box-shadow: 0 0 4px rgba(0,0,0,0.25);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pupil {
+  width: 10px;
+  height: 10px;
+  border-radius: 70%;
+  background: #000000;
+  position: absolute;
+}
+
+/* BANNER */
+#banner {
+  background: #e5edff;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.banner-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 10px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #f50303;
+  color: rgb(255, 255, 255);
+  margin-right: 6px;
+}
+
+/* NAV TABS (nếu còn dùng) */
+.nav-tabs {
+  max-width: 1100px;
+  margin: 12px auto 0 auto;
+  padding: 0 24px 8px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid #d1d5db;
+  justify-content: center;
+}
+
+.tab-btn {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  background: #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  background: #d1d5db;
+}
+
+.tab-btn.active {
+  background: #1d4ed8;
+  color: white;
+  box-shadow: 0 2px 6px rgba(37,99,235,0.5);
+}
+
+/* MAIN */
+main {
+  max-width: 1100px;
+  margin: 12px auto 0 auto;
+  padding: 0 24px 80px 24px;
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* CARD & LAYOUT */
+.card {
+  background: white;
+  border-radius: 32px;        /* chỉnh nhỏ lại */
+  padding: 18px 20px;         /* chỉnh nhỏ lại */
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  margin-bottom: 16px;        /* chỉnh nhỏ lại */
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;         /* chỉnh nhỏ lại */
+  flex: 1;
+  text-align: center;
+}
+
+.card-title {
+  font-size: 18px;            /* hơi tăng nhẹ cho rõ hơn */
+  font-weight: 600;
+  flex: 1;
+  text-align: center;
+}
+
+.card-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.pill {
+  padding: 3px 8px;           /* chỉnh nhỏ lại */
+  border-radius: 999px;
+  font-size: 11px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 500;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;                  /* chỉnh nhỏ lại */
+}
+
+@media (max-width: 768px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metric-card {
+  background: white;
+  border-radius: 16px;         /* chỉnh nhỏ lại */
+  padding: 14px 16px;          /* chỉnh nhỏ lại */
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;                    /* chỉnh nhỏ lại */
+}
+
+.metric-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric-icon {
+  width: 72px;                 /* chỉnh nhỏ lại */
+  height: 72px;                /* chỉnh nhỏ lại */
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eff6ff;
+  font-size: 20px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.metric-label {
+  font-size: 14px;             /* chỉnh nhỏ lại */
+  color: #6b7280;
+}
+
+.metric-value {
+  font-size: 22px;             /* chỉnh nhỏ lại */
+  font-weight: 700;
+}
+
+.metric-unit {
+  font-size: 12px;             /* chỉnh nhỏ lại */
+  color: #6b7280;
+  margin-left: 4px;
+}
+
+.metric-footer {
+  font-size: 11px;             /* chỉnh nhỏ lại */
+  color: #9ca3af;
+}
+
+.metrics-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.mini-metric {
+  padding: 6px 10px;
+  background: #f3f4f6;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+/* TABLE (nếu tab data còn dùng) */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th, td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 8px 6px;
+  text-align: left;
+}
+
+th {
+  background: #f9fafb;
+  font-weight: 600;
+}
+
+tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.btn-outline {
+  border-radius: 999px;
+  padding: 6px 12px;
+  border: 1px solid #1d4ed8;
+  background: white;
+  color: #1d4ed8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-outline:hover {
+  background: #1d4ed8;
+  color: white;
+}
+
+/* FOOTER */
+footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #111827;
+  color: #9ca3af;
+  font-size: 12px;
+  padding: 8px 0;
+}
+
+.footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-inner span {
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>ESP32 Smart Health Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- CSS ngoài -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="logo-circle">❤</div>
+        <div>
+          <div class="header-title">e-Health Dashboard</div>
+        </div>
+      </div>
+      <div class="header-right">
+        
+      </div>
+    </div>
+  </header>
+
+  <!-- BANNER -->
+  <div id="banner">
+    <div class="banner-inner">
+      <div>🕒 Cập nhật lần cuối: <span id="lastUpdateText">--:--</span></div>
+    </div>
+  </div>
+
+  <!-- MAIN CHỈ CÒN TỔNG QUAN -->
+  <main>
+    <section id="overview-only">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Tổng quan sức khỏe</div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <!-- Nhịp tim -->
+          <div class="metric-card">
+            <div class="metric-top">
+              <div class="metric-left">
+                <div class="metric-icon">
+                  <img src="heart.gif" alt="Nhịp tim" class="logo-gif">
+                </div>
+                <div>
+                  <div class="metric-label">Nhịp tim</div>
+                  <div>
+                    <span id="hrValue" class="metric-value">--</span>
+                    <span class="metric-unit">BPM</span>
+                  </div>
+                </div>
+              </div>
+              <span class="pill">Bình thường</span>
+            </div>
+            <div class="metric-footer">Khoảng tham chiếu: 60 – 100 BPM</div>
+          </div>
+
+          <!-- SpO₂ -->
+          <div class="metric-card">
+            <div class="metric-top">
+              <div class="metric-left">
+                <div class="metric-icon">
+                  <img src="oxy.gif" alt="SpO₂" class="logo-gif">
+                </div>
+                <div>
+                  <div class="metric-label">SpO₂</div>
+                  <div>
+                    <span id="spo2Value" class="metric-value">--</span>
+                    <span class="metric-unit">%</span>
+                  </div>
+                </div>
+              </div>
+              <span class="pill">OK</span>
+            </div>
+            <div class="metric-footer">Bình thường: &gt;= 95%</div>
+          </div>
+
+          <!-- Nhiệt độ -->
+          <div class="metric-card">
+            <div class="metric-top">
+              <div class="metric-left">
+                <div class="metric-icon">
+                  <img src="tom.gif" alt="Nhiệt độ" class="logo-gif">
+                </div>
+                <div>
+                  <div class="metric-label">Nhiệt độ cơ thể</div>
+                  <div>
+                    <span id="tempValue" class="metric-value">--</span>
+                    <span class="metric-unit">°C</span>
+                  </div>
+                </div>
+              </div>
+              <span class="pill">Ổn định</span>
+            </div>
+            <div class="metric-footer">Bình thường ~ 36.5 – 37.5°C</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <span>Mọi thông tin liên hệ: 23139039@student.hcmute.edu.vn</span>
+      <span>Đỗ Thanh Sơn</span>
+      <span>Huỳnh Trần Tiến Thịnh</span>
+      <span>Hoàng Gia Phát - Leader</span>
+    </div>
+  </footer>
+
+  <!-- SCRIPT FIREBASE: chỉ cập nhật 3 giá trị + banner -->
+  <script type="module">
+    import { initializeApp } from "";
+    import { getDatabase, ref, onValue } from "";
+
+    const firebaseConfig = {
+
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    // đọc trực tiếp ở ROOT: { hrData, spo2Data, tempData }
+    const latestRef = ref(db, '/');
+
+    onValue(latestRef, (snapshot) => {
+      const data = snapshot.val() || {};
+
+      const hr   = Number(data.hrData   ?? 0);
+      const spo2 = Number(data.spo2Data ?? 0);
+      const temp = Number(data.tempData ?? 0);
+
+      const hrSpan   = document.getElementById('hrValue');
+      const spo2Span = document.getElementById('spo2Value');
+      const tempSpan = document.getElementById('tempValue');
+      const lastSpan = document.getElementById('lastUpdateText');
+
+      if (hrSpan)   hrSpan.textContent   = hr || '--';
+      if (spo2Span) spo2Span.textContent = spo2 || '--';
+      if (tempSpan) tempSpan.textContent = temp ? temp.toFixed(1) : '--';
+
+      if (lastSpan) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        lastSpan.textContent = timeStr;
+      }
+    });
+  </script>
+</body>
+</html>
